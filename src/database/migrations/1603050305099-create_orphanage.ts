@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner, Table} from "typeorm";
 
-export class createOrphanage1602714487053 implements MigrationInterface {
+export class createUsers1603050305099 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
@@ -46,9 +46,20 @@ export class createOrphanage1602714487053 implements MigrationInterface {
                     name: 'open_on_weekends',
                     type: 'boolean',
                     default: false
-                }
+                },
+            ],
+            foreignKeys:[
+                {
+                    name: 'UsersOrphanage',
+                    columnNames: ['user_id'],
+                    referencedTableName: 'users',
+                    referencedColumnNames: ['id'],
+                    onUpdate: 'CASCADE',
+                    onDelete: 'CASCADE',
+                },
             ]
         }))
+
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

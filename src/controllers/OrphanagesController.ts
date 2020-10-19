@@ -12,7 +12,7 @@ export default {
 
         // try {
             const orphanages = await orphanagesRepository.find({
-                relations: ['images']
+                relations: ['images', 'user']
             });
     
             return res.status(200).json(orphanageView.renderMany(orphanages));
@@ -35,7 +35,8 @@ export default {
             return res.status(200).json(orphanageView.render(orphanages));
             
         } catch (error) {
-            return res.status(404).send(error); 
+            return res.status(404).send(error);
+
         }
     },
 
@@ -48,6 +49,7 @@ export default {
             instructions,
             opening_hours,
             open_on_weekends,
+            users_id
         } =  req.body;
         
         const orphanagesRepository = getRepository(Orphanage);
@@ -66,7 +68,8 @@ export default {
             instructions,
             opening_hours,
             open_on_weekends: open_on_weekends === 'true',
-            images
+            images,
+            user: users_id
         };
 
         const schema = Yup.object().shape({
@@ -81,8 +84,11 @@ export default {
                 Yup.object().shape({                
                     path: Yup.string().required()
                 })
-            )
+            ),
+            user: Yup.number().required(),
         })
+
+        console.log(data);
 
         //We set abort early as false to analyse every error to return to the frontend
         await schema.validate(data, {
@@ -92,6 +98,8 @@ export default {
         //Makes a database object
         const orphanage = orphanagesRepository.create(data);
 
+        console.log(orphanage);
+        
         try {
             await orphanagesRepository.save(orphanage);
             
