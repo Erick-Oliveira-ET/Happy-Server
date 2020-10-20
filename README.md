@@ -10,6 +10,7 @@
 * Added the dev script. Flags used:
     * Transpile-only: disable the constant auto check made by ts-node-dev.
     * Ignore-watch node_modules:  disable the constant auto check made in the node modules.
+To start the server use `npm run dev`
 
 * ` npm install typeorm sqlite3`
 
@@ -17,7 +18,7 @@
 * Set the "strictPropertyInitialization" to false for ts to not request a initial value as a initialization (this is important when making models).
 * Set "experimentalDecorators" and "emitDecoratorMetadata" to true to alow using decorators (also important when making models);
 
-# Database, ORM and typeorm
+## Database, ORM and typeorm
 * Created an ormconfig.json
 
 ## ORM
@@ -42,11 +43,18 @@ Typeorm runs in javascript by default. So, it's necessary to overwrite the defau
 ## Multer and @types/multer
 It's a middleware used to handle image and files sent to the body. (I have a long and painfull history with this middleware). 
 
-# Exception error handler and express-async-errors
+## Exception error handler and express-async-errors
 This module is used to handle async errors. Async errors usually take too long or sometimes doesn't return anything until a timeout happens.  
 
-# Validation: yup and @types/yup
+## Validation: yup and @types/yup
 This module helps to simplify the validation of data.
 
-# Cors
+## Cors
 Allow sites with diferents urls to access the server. It's recomended to install as dependency in production because node just allow the trasnfer of data when the the server and frontend are in the same url.
+
+## Authentication
+### jsonwebtoken
+It's used to generate a token from a json and keep it in a session for authentication. The secret of the token is stored in a config.ts file (that's on .gitignore).
+
+### bryptjs, @types/bcryptjs
+Creates a hash for the password and compares it to check if it matches. 
