@@ -9,7 +9,7 @@ interface Decoded{
 }
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = localStorage.getItem("token");
+  const authHeader = req.headers.authorization;
 
   if (!authHeader) {
     return res.status(401).send({ error: "No token provided" });

@@ -16,24 +16,6 @@ interface Decoded{
 
 export default {
 
-    async orphanages(req: Request, res: Response){
-        const { user } = req.params;
-
-        const orphanagesRepository = getRepository(Orphanage);
-
-        try {
-            const orphanages = await orphanagesRepository.find({
-                where: { user: user }
-            });
-    
-            return res.status(200).json(orphanages);
-            
-        } catch (error) {
-            return res.status(404).send(error); 
-        }
-
-    },
-
     async create(req: Request, res: Response){
         let {
             name, 
@@ -99,12 +81,13 @@ export default {
             const token = jwt.sign({ id: user.id }, config.tokenSecret, {
                 expiresIn: 86400
             });
-        
-            localStorage.setItem("token", token);
 
             return res.json({
-                id: user.id,
-                email: user.email
+                user: {
+                    id: user.id,
+                    email: user.email
+                },
+                token
             });
 
         } catch (err) {

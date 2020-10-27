@@ -6,6 +6,8 @@ interface ValidationErrors {
 }
 
 const errorHandler: ErrorRequestHandler = (error, request, response, next) => {
+    console.log(error);
+    
     if(error instanceof ValidationError){
         let errors: ValidationErrors = {};
 

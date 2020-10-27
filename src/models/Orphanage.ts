@@ -29,10 +29,9 @@ export default class Orphanage {
     @Column()
     open_on_weekends: boolean;
 
-    @ManyToOne(() => User, user => user.orphanage)
-    @JoinColumn({ name: 'users_id'})
-    user: User;
-
+    @Column()
+    isVerified: boolean;
+    
     @OneToMany(() => Image, image => image.orphanage, {
         cascade: ['insert', 'update']
     })

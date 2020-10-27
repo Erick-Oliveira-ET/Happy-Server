@@ -48,21 +48,11 @@ export class createUsers1603050305099 implements MigrationInterface {
                     default: false
                 },
                 {
-                    name: 'users_id',
-                    type: 'integer',
+                    name: 'isVerified',
+                    type: 'boolean',
                     default: false
                 },
             ],
-            foreignKeys:[
-                {
-                    name: 'UsersOrphanage',
-                    columnNames: ['users_id'],
-                    referencedTableName: 'users',
-                    referencedColumnNames: ['id'],
-                    onUpdate: 'CASCADE',
-                    onDelete: 'CASCADE',
-                },
-            ]
         }))
 
     }
