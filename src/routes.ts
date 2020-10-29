@@ -15,7 +15,8 @@ const upload = multer(uploadConfig);
 
 routes.post('/users', UsersController.create);
 routes.post('/auth', UsersController.authenticate);
-routes.post('/auth/:token', UsersController.authenticateConfirmation);
+routes.post('/forgot_password/:email', UsersController.forgotPassword);
+routes.post('/reset_password', UsersController.resetPassword);
 
 routes.get('/orphanages/:isVerified', OrphanagesController.index);
 routes.get('/orphanage/:id', OrphanagesController.show);

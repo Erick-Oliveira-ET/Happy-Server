@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
 
+const mailer = require('../config/mailer.js');
+
 //Yupe doesn't have export default so that's the way to import
 import * as Yup from 'yup';
 
@@ -12,6 +14,7 @@ import Orphanage from '../models/Orphanage';
 
 interface Decoded{
     id: number;
+    email: string;
 }
 
 export default {
@@ -95,33 +98,99 @@ export default {
         }
     },
 
-    async authenticateConfirmation(req: Request, res: Response){
-        const tokenPassed = req.params.token;
+    async forgotPassword(req: Request, res: Response){
+        const { email } = req.params;
 
-        if (!tokenPassed) {
-            return res.status(401).send({ error: "No token provided" });
+        if (!email) {
+            return res.status(401).send({ error: "No email provided" });
         }
 
-        const [scheme, token] = tokenPassed.split(" ");
-        
         const userRepository = getRepository(User);
 
         try {
-        
-            const decoded = jwt.verify(token, config.tokenSecret);
+            const user = await userRepository.findOne({email});
             
-            const userId = (<Decoded>decoded).id;
-            
-            if((await userRepository.findOne(userId))){
-                return res.status(200).send(true);
-
+            if (!user) {
+              return res.status(400).json({ error: "User not found" });
             }
+        
+            const token = jwt.sign({ email, id: user.id }, config.tokenSecret, {
+                expiresIn: 3600
+            } )
+            
+            mailer.sendMail({
+                to: email,
+                from: "erickoliveirasystem@outlook.com",
+                subject: "Esqueceu a senha",
+                text: `http://localhost:3000/forgot_password/${token}`
+            
+            }, (err: any) => {
+                if (err) {
+                    return res.status(400).json({ error: "Send email failed."})
+                }
 
-            return res.status(400).send(false);
+                return res.status(200).send()
+            })
+
+            return res.status(200).send();
             
 
         } catch (err) {
-            return res.status(401).send({ error: "Token invalid" });
+            console.log(err);
+            
+            return res.status(500).send({ error: "Internal server error" });
+        }
+    }, 
+
+    async resetPassword(req: Request, res: Response){
+        let {
+            token,
+            newpassword,
+            newpasswordverify
+        } =  req.body;
+        
+        const userRepository = getRepository(User);
+
+        const decoded = jwt.verify(token, config.tokenSecret);
+
+        const data = {
+            id: (<Decoded>decoded).id,
+            email: (<Decoded>decoded).email,
+            newpassword,
+            newpasswordverify
+        };
+
+        const schema = Yup.object().shape({
+            id: Yup.number().required(),
+            email: Yup.string().required().email(),
+            newpassword: Yup.string().required(),
+            newpasswordverify: Yup.string().required().required(newpassword),
+        })
+
+        const password = await bcrypt.hash(newpassword, 8);
+
+
+        //We set abort early as false to analyse every error to return to the frontend
+        await schema.validate(data, {
+            abortEarly: false,
+        });
+
+        //Makes a database object
+        const user = userRepository.create({ 
+            id:(<Decoded>decoded).id, 
+            email: (<Decoded>decoded).email, 
+            password
+        });
+        
+        try {
+            
+            await userRepository.save(user);
+            
+            return res.status(201).send();
+            
+        } catch (error) {
+            console.log(error)
+            return res.status(500).send(error);
         }
     }
 }
